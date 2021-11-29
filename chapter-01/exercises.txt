@@ -1,0 +1,100 @@
+Exercise 1.
+double x = x + x
+
+Solution 1:
+double (double 2)
+  { applying inner double }
+= double (2 + 2)
+  { applying double }
+= (2 + 2) + (2 + 2)
+  { applying first + }
+= 4 + (2 + 2)
+  { applying second + }
+= 4 + 4
+  { applying  + }
+= 8
+
+Solution 2:
+double (double 2)
+  { applying outer double }
+= (double 2) + (double 2)
+  { applying first double }
+= (2 + 2) + (double 2)
+  { applying second double }
+= (2 + 2) + (2 + 2)
+  { applying first + }
+= 4 + (2 + 2)
+  { applying second + }
+= 4 + 4
+  { applying + }
+= 8
+=========================================
+
+Exercise 2.
+Definition of sum:
+sum [] = 0
+sum (n:ns) = n + sum ns
+
+Solution:
+sum [x]
+  { applying sum }
+= x + xum[]
+  { applying sum }
+= x + 0
+  { applying + }
+= x
+=========================================
+
+Exercise 3.
+Definition:
+product [] = 1
+product (n:ns) = n * product ns
+
+Example:
+product [2, 3, 4]
+  { applying product }
+= 2 * (product [3, 4])
+  { applying product }
+= 2 * (3 * (product [4]))
+  { applying product }
+= 2 * (3 * (4 * (product [])))
+  { applying product }
+= 2 * (3 * (4 * 1))
+  { applying * }
+= 2 * (3 * 4)
+  { applying * }
+= 2 * 12
+  { applying * }
+= 24
+=========================================
+
+Exercise 4.
+Solution:
+qsort [] = []
+qsort (x:xs) = qsort larger ++ [x] ++ qsort smaller
+  where
+    smaller = [a | a <- xs, a <= x]
+    larger = [b | b <- xs, b > x]
+=========================================
+
+Exercise 5.
+New definition:
+qsort [] = []
+qsort (x:xs) = qsort smaller ++ [x] ++ qsort larger
+  where
+    smaller = [a | a <- xs, a < x]
+    larger = [b | b <- xs, b > x]
+
+Solution:
+qsort [2, 2, 3, 1, 1]
+  { applying qsort }
+= (qsort [1, 1]) ++ [2] ++ (qsort [3])
+  { applying qsort }
+= (qsort[] ++ [1] ++ qsort []) ++ [2] ++ (qsort[] ++ [3] ++ qsort[])
+  { applying qsort }
+= ([] ++ [1] ++ []) ++ [2] ++ ([] ++ [3] ++ [])
+  { applying ++ }
+= [1] ++ [2] ++ [3]
+  { applying ++ }
+= [1, 2, 3]
+It removes duplicates.
