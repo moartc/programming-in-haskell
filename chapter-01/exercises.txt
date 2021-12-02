@@ -1,7 +1,10 @@
-Exercise 1.
+Exercise 1: Give another possible calculation for the result of
+double (double 2).
+
+Answer:
 double x = x + x
 
-Solution 1:
+1.
 double (double 2)
   { applying inner double }
 = double (2 + 2)
@@ -14,7 +17,7 @@ double (double 2)
   { applying  + }
 = 8
 
-Solution 2:
+2.
 double (double 2)
   { applying outer double }
 = (double 2) + (double 2)
@@ -30,12 +33,13 @@ double (double 2)
 = 8
 =========================================
 
-Exercise 2.
+Exercise 2: Show that sum [x] “ x for any number x.
+
+Answer:
 Definition of sum:
 sum [] = 0
 sum (n:ns) = n + sum ns
 
-Solution:
 sum [x]
   { applying sum }
 = x + xum[]
@@ -45,12 +49,14 @@ sum [x]
 = x
 =========================================
 
-Exercise 3.
+Exercisse 3: Deﬁne a function product that produces the product of a list
+of numbers, and show using your deﬁnition that product [2,3,4] = 24.
+
+Answer:
 Definition:
 product [] = 1
 product (n:ns) = n * product ns
 
-Example:
 product [2, 3, 4]
   { applying product }
 = 2 * (product [3, 4])
@@ -68,8 +74,10 @@ product [2, 3, 4]
 = 24
 =========================================
 
-Exercise 4.
-Solution:
+Exercise 4: How should the deﬁnition of the function qsort be modiﬁed so that
+it produces a reverse sorted version of a list?
+
+Answer:
 qsort [] = []
 qsort (x:xs) = qsort larger ++ [x] ++ qsort smaller
   where
@@ -77,7 +85,10 @@ qsort (x:xs) = qsort larger ++ [x] ++ qsort smaller
     larger = [b | b <- xs, b > x]
 =========================================
 
-Exercise 5.
+Exercise 5: What would be the eﬀect of replacing <= by < in the original
+deﬁnition of qsort? Hint: consider the example qsort [2,2,3,1,1].
+
+Answer:
 New definition:
 qsort [] = []
 qsort (x:xs) = qsort smaller ++ [x] ++ qsort larger
@@ -85,7 +96,7 @@ qsort (x:xs) = qsort smaller ++ [x] ++ qsort larger
     smaller = [a | a <- xs, a < x]
     larger = [b | b <- xs, b > x]
 
-Solution:
+result:
 qsort [2, 2, 3, 1, 1]
   { applying qsort }
 = (qsort [1, 1]) ++ [2] ++ (qsort [3])
