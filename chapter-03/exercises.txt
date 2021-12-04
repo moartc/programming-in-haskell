@@ -1,11 +1,4 @@
-Exercise 1: What are the types of the following values?
-[’a’,’b’,’c’]
-(’a’,’b’,’c’)
-[(False,’O’),(True,’1’)]
-([False,True],[’0’,’1’])
-[tail, init, reverse]
-
-Answer:
+Exercise 1:
 1. [’a’,’b’,’c’] -> [Char]
 2. (’a’,’b’,’c’) -> (Char, Char, Char)
 3. [(False,’O’),(True,’1’)] -> [(Bool, Char)]
@@ -13,15 +6,7 @@ Answer:
 5. [tail, init, reverse] -> [[a] -> [a]]
 =========================================
 
-Exercise 2: Write down deﬁnitions that have the following types; it does not
-matter what the deﬁnitions actually do as long as they are type correct.
-bools :: [Bool]
-nums :: [[Int]]
-add :: Int -> Int -> Int -> Int
-copy :: a -> (a,a)
-apply :: (a -> b) -> a -> b
-
-Answer:
+Exercise 2:
 1. bools :: [Bool]
 bools = [True, False]
 2. nums :: [[Int]]
@@ -35,40 +20,33 @@ copy x = (x, x)
 apply a b = a b
 =========================================
 
-Exercise 3: What are the types of the following functions?
-second xs = head (tail xs)
-swap (x,y) = (y,x)
-pair x y = (x,y)
-double x = x*2
-palindrome xs = reverse xs == xs
-twice f x = f (f x)
-
-Answer:
+Exercise 3:
 1. second xs = head (tail xs)
 [a] -> a
+
 2. swap (x,y) = (y,x)
 (a, b) -> (b, a)
+
 3. pair x y = (x,y)
 a -> b -> (a, b)
+
 4. double x = x*2
 a -> a
+
 5. palindrome xs = reverse xs == xs
 [a] -> Bool
+
 6. twice f x = f (f x)
 x :: a
 f :: a -> a
 twice :: (a -> a) -> a -> a
 =========================================
 
-Exercise 4: Check your answers to the preceding three questions using GHCi.
+Exercise 4:
 --
 =========================================
 
-Exercise 5: Why is it not feasible in general for function types to be instances
-of the Eq class? When is it feasible? Hint: two functions of the same type are
-equal if they always return equal results for equal arguments.
-
-Answer:
+Exercise 5:
 Why is it not feasible in general?
 Is not feasible because of infinite number of possible arguments. We would
 have to check returned result for all of them.

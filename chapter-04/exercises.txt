@@ -1,0 +1,91 @@
+Exercise 1:
+helve :: [a] -> ([a],[a])
+helve xs = (take(length xs `div` 2) xs, drop(length xs `div` 2) xs)
+=========================================
+
+Exercise 2:
+a. using head and tail:
+third :: [a] -> a
+third xs = head (tail (tail xs))
+
+b. using list indexing !!:
+third :: [a] -> a
+third xs = xs !! 2
+
+c. using pattern matching:
+third :: [a] -> a
+third (_:_:x:_) = x
+=========================================
+
+Exercise 3:
+a. using a conditional expression;
+safetail :: [a] -> [a]
+safetail xs = if null xs then xs else tail xs
+
+b. using guarded equations;
+safetail :: [a] -> [a]
+safetail xs | null xs   = xs
+            | otherwise = tail xs
+
+c. using pattern matching:
+safetail :: [a] -> [a]
+safetail (_:xs) = xs
+safetail _ = []
+=========================================
+
+Exercise 4:
+1.
+(||) :: Bool -> Bool -> Bool
+True || True    = True
+True || False   = True
+False || True   = True
+False || False  = False
+
+2.
+(||) :: Bool -> Bool -> Bool
+False || False = False
+_     || _     = True
+
+3.
+(||) :: Bool -> Bool -> Bool
+True  || _ = True
+False || b = b
+
+4.
+(||) :: Bool -> Bool -> Bool
+b || c | b == c    = b
+       | otherwise = True
+=========================================
+
+Exercise 5:
+(&&) :: Bool -> Bool -> Bool
+x && y = if x == True then
+            if y == True then True else False
+         else False
+=========================================
+
+Exercise 6:
+(&&) :: Bool -> Bool -> Bool
+x && y = if x == True then b
+         else False
+
+Exercise 5: 2 if, 2 then, 2 else
+Exercise 6: 1 if, 1 then. 1 else
+=========================================
+
+Exercise 7:
+mult :: Int -> Int -> Int -> Int
+mult = \x -> (\y -> (\z -> x*y*z))
+=========================================
+
+Exercise 8:
+1.
+luhnDouble :: Int -> Int
+luhnDouble x | x*2 > 9   = x*2-9
+             | otherwise = x*2
+
+2.
+luhn :: Int -> Int -> Int -> Int -> Bool
+luhn a b c d | (luhnDouble a + b + luhnDouble c + d) `mod` 10 == 0 = True
+             | otherwise                                           = False
+=========================================

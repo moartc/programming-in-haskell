@@ -1,7 +1,4 @@
-Exercise 1: Give another possible calculation for the result of
-double (double 2).
-
-Answer:
+Exercise 1:
 double x = x + x
 
 1.
@@ -33,9 +30,7 @@ double (double 2)
 = 8
 =========================================
 
-Exercise 2: Show that sum [x] “ x for any number x.
-
-Answer:
+Exercise 2:
 Definition of sum:
 sum [] = 0
 sum (n:ns) = n + sum ns
@@ -49,10 +44,7 @@ sum [x]
 = x
 =========================================
 
-Exercisse 3: Deﬁne a function product that produces the product of a list
-of numbers, and show using your deﬁnition that product [2,3,4] = 24.
-
-Answer:
+Exercise 3:
 Definition:
 product [] = 1
 product (n:ns) = n * product ns
@@ -74,10 +66,7 @@ product [2, 3, 4]
 = 24
 =========================================
 
-Exercise 4: How should the deﬁnition of the function qsort be modiﬁed so that
-it produces a reverse sorted version of a list?
-
-Answer:
+Exercise 4:
 qsort [] = []
 qsort (x:xs) = qsort larger ++ [x] ++ qsort smaller
   where
@@ -85,10 +74,7 @@ qsort (x:xs) = qsort larger ++ [x] ++ qsort smaller
     larger = [b | b <- xs, b > x]
 =========================================
 
-Exercise 5: What would be the eﬀect of replacing <= by < in the original
-deﬁnition of qsort? Hint: consider the example qsort [2,2,3,1,1].
-
-Answer:
+Exercise 5: 
 New definition:
 qsort [] = []
 qsort (x:xs) = qsort smaller ++ [x] ++ qsort larger
