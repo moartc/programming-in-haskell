@@ -1,0 +1,77 @@
+Exercise 1:
+1^2 + 2^2 + ... + 100^2
+
+result = sum[ x^2 | x <- [1..100]]
+=========================================
+
+Exercise 2:
+grid :: Int -> Int -> [(Int,Int)]
+grid n m = [(x,y) | x <- [0..n], y <- [0..m]]
+=========================================
+
+Exercise 3:
+square :: Int -> [(Int,Int)]
+square n = [(x,y) | (x, y) <- grid n n, x /= y]
+=========================================
+
+Exercise 4:
+replicate :: Int -> a -> [a]
+replicate x y = [y | _ <- [1..x]]
+=========================================
+
+Exercise 5:
+pyths :: Int -> [(Int,Int,Int)]
+pyths n = [(x,y,z) | x <- [1..n], y <- [1..n], z <- [1..n], x^2 + y^2 == z^2]
+=========================================
+
+Exercise 6:
+factors :: Int -> [Int]
+factors n = [x | x <- [1..n], n ‘mod‘ x == 0]
+
+perfects :: Int -> [Int]
+perfects n = [x | x <- [1..n], sum(tail(reverse(factors x))) == x]
+=========================================
+
+Exercise 7:
+[(x,y) | x <- [1,2], y <- [3,4]]
+[(1,3),(1,4),(2,3),(2,4)]
+
+concat [[(x,y) | y <- [3,4]] | x <-[1,2]]
+=========================================
+
+Exercise 8:
+original definition:
+positions :: Eq a => a -> [a] -> [Int]
+positions x xs = [i | (x',i) <- zip xs [0..], x == x']
+> positions False [True, False, True, False]
+
+definition of 'find' function:
+find :: Eq a => a -> [(a,b)] -> [b]
+find k t = [v | (k',v) <- t, k == k']
+
+redefinition:
+positions x xs = [a | a <- find x (zip xs [0..])]
+=========================================
+
+Exercise 9:
+scalarproduct :: [Int] -> [Int] -> Int
+scalarproduct xs ys = sum[x*y | (x,y) <- zip xs ys]
+=========================================
+
+Exercise 10:
+lowerlet2int :: Char -> Int
+lowerlet2int c = ord c - ord 'a'
+
+int2lowerlet :: Int -> Char
+int2lowerlet n = chr (ord 'a' + n)
+
+upperlet2int :: Char -> Int
+upperlet2int c = ord c - ord 'A'
+
+int2upperlet :: Int -> Char
+int2upperlet n = chr (ord 'A' + n)
+
+shift :: Int -> Char -> Char
+shift n c | isLower c = int2lowerlet ((lowerlet2int c + n) `mod` 26)
+          | isUpper c = int2upperlet ((upperlet2int c + n) `mod` 26)
+          | otherwise = c
