@@ -1,0 +1,213 @@
+Exercise 1:
+First definition:
+fac :: Int -> Int
+fac 0 = 1
+fac n = n * fac (n-1)
+
+fac (-1) causes Stack Overflow because function loops forever. It only stops on
+0 which in this case is not reached.
+
+New definition:
+fac :: Int -> Int
+fac n | n<1       = 1
+      | otherwise = n * fac (n-1)
+=========================================
+
+Exercise 2:
+sumdown :: Int -> Int
+sumdown 0 = 0
+sumdown x = x + sumdown (x-1)
+=========================================
+
+Exercise 3:
+(^) :: Int -> Int -> Int
+m ^ 0 = 1
+m ^ n = m * (m ^ (n-1))
+
+2 ^ 4
+{ applying ^ }
+2 * (2 ^ 3)
+{ applying ^ }
+2 * (2 * (2 ^ 2))
+{ applying ^ }
+2 * (2 * (2 * (2 ^ 1)))
+{ applying ^ }
+2 * (2 * (2 * (2 * (2 ^ 0)))))
+{ applying ^ }
+2 * (2 * (2 * (2 * (1)))))
+{ applying * }
+2 * 2 * 2 * 2
+{ applying * }
+16
+=========================================
+
+Exercise 4:
+> euclid 6 27
+3
+
+euclid :: Int -> Int -> Int
+euclid x y | x == y     = x
+           | x > y      = euclid y (x - y)
+           | otherwise  = euclid x (y - x)
+=========================================
+
+Exercise 5:
+1. length [1,2,3]
+
+definition:
+length :: [a] -> Int
+length []     = 0
+length (_:xs) = 1 + length xs
+
+evaluation:
+length [1,2,3]
+{ applying length }
+1 + length [2,3]
+{ applying length }
+1 + (1 + length [3])
+{ applying length }
+1 + (1 + (1 + length []))
+{ applying length }
+1 + (1 + (1 + 0))
+{ applying + }
+3
+------------------------
+
+2. drop 3 [1,2,3,4,5]
+
+definition:
+drop :: Int -> [a] -> [a]
+drop 0 xs     = xs
+drop _ []     = []
+drop n (_:xs) = drop (n-1) xs
+
+evaluation:
+drop 3 [1,2,3,4,5]
+{ applying drop }
+drop 2 [2,3,4,5]
+{ applying drop }
+drop 1 [3,4,5]
+{ applying drop }
+drop 0 [4,5]
+{ applying drop }
+[4,5]
+------------------------
+
+3. init [1,2,3]
+
+definition:
+init :: [a] -> [a]
+init [_]    = []
+init (x:xs) = x : init xs
+
+evaluation:
+init [1,2,3]
+{ applying init }
+1 : init [2,3]
+{ applying init }
+1 : (2 : init [3])
+{ applying init }
+1 : (2 : [])
+{ applying : }
+[1,2]
+=========================================
+
+Exercise 6:
+a. Decide if all logical values in a list are True:
+and :: [Bool] -> Bool
+
+my definition:
+and' :: [Bool] -> Bool
+and' []                  = True
+and' (x:xs) | x == False = False
+            | otherwise  = and' xs
+-----------------------------------------
+
+b. Concatenate a list of lists:
+concat :: [[a]] -> [a]
+
+my definition:
+concat' :: [[a]] -> [a]
+concat' []     = []
+concat' (x:xs) = x ++ concat' xs
+-----------------------------------------
+
+c. Produce a list with n identical elements:
+replicate :: Int -> a -> [a]
+
+my definition:
+replicate :: Int -> a -> [a]
+replicate 1 x = [x]
+replicate n x = [x] ++ (replicate (n-1) x)
+-----------------------------------------
+
+d. Select the nth element of a list:
+(!!) :: [a] -> Int -> a
+
+my definition:
+(!!) :: [a] -> Int -> a
+(x:xs) !! 0 = x
+(x:xs) !! n = xs !! (n-1)
+-----------------------------------------
+
+e. Decide if a value is an element of a list:
+elem :: Eq a => a -> [a] -> Bool
+
+my definition:
+elem' :: Eq a => a -> [a] -> Bool
+elem' n []                 = False
+elem' n (x:xs) | n == x    = True
+               | otherwise = elem` n xs
+=========================================
+
+Exercise 7:
+merge :: Ord a => [a] -> [a] -> [a]
+
+my definition:
+merge' :: Ord a => [a] -> [a] -> [a]
+merge' [] [] = []
+merge' x []  = x
+merge' [] x  = x
+merge' (x:xs) (y:ys) | x < y     = [x] ++ merge' xs (y:ys)
+                     | otherwise = [y] ++ merge' (x:xs) ys
+=========================================
+
+Exercise 8:
+msort :: Ord a => [a] -> [a]
+
+my definition (with previous merge`):
+halve' :: [a] -> ([a],[a])
+halve' x = (take ((length x) `div` 2) x, drop ((length x) `div` 2) x)
+
+msort :: Ord a => [a] -> [a]
+msort [] = []
+msort [x] = [x]
+msort x = msort a `merge'` msort b
+        where a = fst (halve' x)
+              b = snd (halve' x)
+=========================================
+
+Exercise 9:
+a. calculate the sum of a list of numbers;
+
+definition:
+sum' :: Num a => [a] -> a
+sum' [] = 0
+sum' (x:xs) = x + sum' xs
+-----------------------------------------
+
+b. take a given number of elements from the start of a list;
+
+definition:
+take' :: Int -> [a] -> [a]
+take' _ [] = []
+take' 0 xs = []
+take' n (x:xs) = [x] ++ take' (n-1) xs
+-----------------------------------------
+
+c. select the last element of a non-empty list.
+
+definition:
+last' :: [a] -> a
+last' [x]    = x
+last' (x:xs) = last' xs
