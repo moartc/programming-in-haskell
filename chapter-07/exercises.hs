@@ -68,6 +68,3 @@ iterate' f = unfold (\_ -> False) (\x -> x) (\x -> f(x))
 -- exercise 9
 altMap :: (a -> b) -> (a -> b) -> [a] -> [b]
 altMap f1 f2 xs = [if(b `mod` 2 == 0) then f1 (a) else f2 (a) | (a, b) <- zip xs [0..]]
-
--- exercise 10
-luhn :: [Int] -> Bool
