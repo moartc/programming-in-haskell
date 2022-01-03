@@ -111,10 +111,20 @@ iterate' f = unfold (\_ -> False) (\x -> x) (\x -> f(x))
 
 Exercise 7:
 
+Solution in file BinaryStringTransmitterExercise.hs
 =========================================
 
 Exercise 8:
 
+Solution in file BinaryStringTransmitterExercise.hs
 =========================================
 
 Exercise 9:
+
+altMap :: (a -> b) -> (a -> b) -> [a] -> [b]
+altMap f1 f2 xs = [if(b `mod` 2 == 0) then f1 (a) else f2 (a) | (a, b) <- zip xs [0..]]
+=========================================
+
+Exercise 10:
+Solution in file LuhnAlgorithm.hs
+=========================================
