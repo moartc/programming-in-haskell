@@ -1,0 +1,47 @@
+Exercise 1:
+
+mult :: Nat -> Nat -> Nat
+mult Zero n     = Zero
+mult (Succ m) n = add n (mult m n)
+=========================================
+
+Exercise 2:
+
+occurs :: Ord a => a -> Tree a -> Bool
+occurs x (Leaf y)     = x == y
+occurs x (Node l y r) = case compare x y of
+                        EQ        -> True
+                        LT        -> occurs x l
+                        GT -> occurs x r
+=========================================
+
+Exercise 3:
+=========================================
+
+Exercise 4:
+
+
+=========================================
+
+Exercise 5:
+
+=========================================
+
+Exercise 6:
+
+=========================================
+
+Exercise 7:
+
+
+=========================================
+
+Exercise 8:
+
+
+=========================================
+
+Exercise 9:
+
+
+=========================================
