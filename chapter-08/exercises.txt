@@ -16,32 +16,63 @@ occurs x (Node l y r) = case compare x y of
 =========================================
 
 Exercise 3:
+
+numLeaves :: Tree a -> Int
+numLeaves (Leaf _) = 1
+numLeaves (Node l r) =  numLeaves l + numLeaves r
+
+balanced :: Tree a -> Bool
+balanced (Leaf _) = True
+balanced (Node l r) = abs (numLeaves l - numLeaves r) <= 1 && balanced l && balanced r
 =========================================
 
 Exercise 4:
 
+split :: [a] -> ([a],[a])
+split xs = (take l xs, drop l xs)
+            where l = length xs `div` 2
 
+balance :: [a] -> Tree a
+balance [x] = Leaf x
+balance xs  = Node2 (balance(fst splitted)) (balance (snd splitted))
+              where splitted = (split xs)
 =========================================
 
 Exercise 5:
 
+folde :: (Int -> a) -> (a -> a -> a) -> Expr -> a
+folde f g (Val v) = f v
+folde f g (Add x y) = g (folde f g x) (folde f g y)
 =========================================
 
 Exercise 6:
 
+eval :: Expr -> Int
+eval xs = folde (\x -> x) (\x y -> x + y) xs
+
+size :: Expr -> Int
+size xs = folde (\_ -> 1) (\x y -> x + y) xs
 =========================================
 
 Exercise 7:
 
+instance Eq a => Eq (Maybe a) where
+  Just x == Just y   = x == y
+  Nothing == Nothing = True
+  _ == _             = False
 
+instance Eq a => Eq [a] where
+  [] == []         = True
+  (x:xs) == (y:ys) = x == y && xs == ys
+  _ == _           = False
 =========================================
 
 Exercise 8:
 
-
+Solution in file TautologyCheckerExercise.hs
 =========================================
 
 Exercise 9:
 
-
+Solution in file AbstractMachineExercise.hs
 =========================================
