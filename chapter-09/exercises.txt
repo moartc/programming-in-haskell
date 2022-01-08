@@ -1,0 +1,48 @@
+Exercise 1:
+
+choices' :: [a] -> [[a]]
+choices' xs = [c | s <- subs xs, c <- perms s]
+=========================================
+
+Exercise 2:
+
+removeFirst :: Eq a => a -> [a] -> [a]
+removeFirst _ [] = []
+removeFirst v (x:xs)  = if v == x
+                        then xs
+                        else x : removeFirst v xs
+
+
+isChoice :: Eq a => [a] -> [a] -> Bool
+isChoice [] ys     = True
+isChoice xs (y:ys) = isChoice (removeFirst y xs) ys
+isChoice _ _       = False
+=========================================
+
+Exercise 3:
+
+// answer from appendix
+It would lead to non-termination, because recursive calls to exprs would no
+longer be guaranteed to reduce the length of the list.
+=========================================
+
+Exercise 4:
+
+allsols ns = [e | ns' <- choices ns, e <- exprs ns']
+allvalid ns = [x | x <- allsols ns, eval x /= []]
+=========================================
+
+Exercise 5:
+
+valid changed to:
+valid :: Op -> Int -> Int -> Bool
+valid Add _ _ = True
+valid Sub x y = True
+valid Mul _ _ = True
+valid Div x y = y /= 0 && x `mod` y == 0
+=========================================
+
+Exercise 6:
+
+Solution in file CountdownProblemExercise.hs (only for 'a')
+=========================================
