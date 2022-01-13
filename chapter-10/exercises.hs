@@ -1,4 +1,7 @@
+import System.IO
 import Data.Char
+import Distribution.Simple.Program (getDbProgramOutput)
+import Distribution.Fields.LexerMonad (getInput)
 
 
 -- Exercise 1
@@ -75,3 +78,44 @@ adder = do putStr "How many numbers? "
            putStrLn (show (sum nums))
 
 -- Exercise 5
+getDigit' :: IO Int
+getDigit' = do x <- getChar
+               newline
+               if isDigit x then
+                  return (digitToInt x)
+               else
+                  do putStrLn "ERROR: Invalid digit"
+                     getDigit'
+getDigits 0 = []
+getDigits n = getDigit' : getDigits (n-1)
+
+adder' :: IO ()
+adder' = do putStr "How many numbers? "
+            nb <- getDigit'
+            nums <- sequence (getDigits nb)
+            putStr "The total is "
+            print (sum nums)
+
+-- Exercise 6
+getCh :: IO Char
+getCh = do hSetEcho stdin False
+           x <- getChar
+           hSetEcho stdin True
+           return x
+
+readLine = readLine' ""
+readLine' xs  = do x <- getCh
+                   if x == '\n' then
+                      do putChar x
+                         return xs
+                   else
+                      if x == '\DEL' then
+                         do putStr "\b \b"                            
+                            if not (null xs) then
+                               readLine' (init xs)
+                            else
+                               readLine' ""
+                      else
+                         do putChar '-'
+                            readLine' (xs ++ [x])
+                            
