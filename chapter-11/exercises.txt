@@ -1,0 +1,54 @@
+Exercise 1:
+
+v = gametree empty O
+
+count :: Tree Grid -> Int
+count (Node _ [])     = 1
+count (Node _ (x:xs)) = 1 + count x + sum [count x | x <- xs]
+
+To verify call: 
+> count v
+=========================================
+
+Exercise 2:
+
+Changes in previous version:
+
+bestmoves' :: Grid -> Player -> [Grid]
+bestmoves' g p = [g' | Node (g',p') _ <- ts, p' == best]
+                 where
+                     tree = prune depth (gametree g p)
+                     Node (_,best) ts = minimax tree
+
+random :: [Grid] -> IO Grid
+random g = do
+    idx <- randomRIO(0,length g -1)
+    return $ g !! idx
+  
+
+randomBest :: Grid -> Player -> IO Grid
+randomBest g p =  random (bestmoves' g p)
+
+play' :: Grid -> Player -> IO ()
+play' g p | wins O g = putStrLn "Player O wins!\n"
+          | wins X g = putStrLn "Player X wins!\n"
+          | full g   = putStrLn "It's a draw!\n"
+          | p == O = do i <- getNat (prompt p)
+                        case move g i p of
+                             [] -> do putStrLn "ERROR: Invalid move"
+                                      play' g p
+                             [g'] -> play g' (next p)
+          | p == X = do putStr "Player X is thinking... "
+                        move <- randomBest g p
+                        (play $! move) (next p)
+=========================================
+
+Exercise 3:
+
+
+=========================================
+
+Exercise 4:
+
+
+=========================================
