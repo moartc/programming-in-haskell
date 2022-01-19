@@ -181,9 +181,23 @@ play' g p | wins O g = putStrLn "Player O wins!\n"
 -- data Tree a = Node a [Tree a]
 v = gametree empty O
 
-count :: Tree Grid -> Int
-count (Node _ [])     = 1
-count (Node _ (x:xs)) = 1 + count x + sum [count x | x <- xs]
+countnodes :: Tree Grid -> Int
+countnodes (Node _ [])     = 1
+countnodes (Node _ (x:xs)) = 1 + countnodes x + sum [countnodes x | x <- xs]
+
+maxdepth :: Tree Grid -> Int
+maxdepth (Node _ [])     = 1
+maxdepth (Node _ (x:xs)) = 1 + mymax [maxdepth x | x <- xs]
+
+mymax :: [Int] -> Int
+mymax [] = 0
+mymax x  = maximum x
+
+{-
+ to verify run:
+ countnodes v
+ maxdepth v
+-}
 
 -- Exercise 2
 
