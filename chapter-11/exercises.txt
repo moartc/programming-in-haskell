@@ -2,12 +2,21 @@ Exercise 1:
 
 v = gametree empty O
 
-count :: Tree Grid -> Int
-count (Node _ [])     = 1
-count (Node _ (x:xs)) = 1 + count x + sum [count x | x <- xs]
+countnodes :: Tree Grid -> Int
+countnodes (Node _ [])     = 1
+countnodes (Node _ (x:xs)) = 1 + countnodes x + sum [countnodes x | x <- xs]
+
+maxdepth :: Tree Grid -> Int
+maxdepth (Node _ [])     = 1
+maxdepth (Node _ (x:xs)) = 1 + mymax [maxdepth x | x <- xs]
+
+mymax :: [Int] -> Int
+mymax [] = 0
+mymax x  = maximum x
 
 To verify call: 
-> count v
+>  countnodes v
+> maxdepth v
 =========================================
 
 Exercise 2:
@@ -45,7 +54,112 @@ play' g p | wins O g = putStrLn "Player O wins!\n"
 
 Exercise 3:
 
+Solution in file exercise3.hs
 
+sample game before / after changes:
+
+before:
+   |   |   
+   | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   |   
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   |  
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   | O 
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   | X |    
+   |   |   
+-----------
+   |   |   
+   |   | O 
+   |   |  
+
+last move will not provide the faster win,
+
+after changes:
+
+   |   |   
+   | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   |   
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   |  
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+   |   | O 
+   |   |   
+
+   |   |   
+ X | O |   
+   |   |   
+-----------
+   |   |   
+   |   |    
+   |   |   
+-----------
+   |   |   
+ X |   | O 
+   |   |  
+
+this move makes sense
 =========================================
 
 Exercise 4:
