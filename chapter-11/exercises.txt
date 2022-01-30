@@ -164,5 +164,9 @@ this move makes sense
 
 Exercise 4:
 
-
+Solution for 4a and 4b in file exercise4.hs
+Solution for 4c in file exercise 4c,hs.
+I thought I had to implement a search for a current grid, but the program somehow works without it.
+Searching worked on the small test, but after adding to the program throws the error:
+"Exception: Prelude.head: empty list" so it's to fix.
 =========================================
