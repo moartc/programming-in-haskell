@@ -165,8 +165,10 @@ this move makes sense
 Exercise 4:
 
 Solution for 4a and 4b in file exercise4.hs
-Solution for 4c in file exercise 4c,hs.
-I thought I had to implement a search for a current grid, but the program somehow works without it.
-Searching worked on the small test, but after adding to the program throws the error:
-"Exception: Prelude.head: empty list" so it's to fix.
+
+Solution for 4c in file exercise 4c,hs. It seems that all issues have been fixed.
+Previously 'gametree' was actually generated multiple times. Now it's fixed.
+Solution doesn't include the solutions of exercises 4a and 4b.
+
+...
 =========================================

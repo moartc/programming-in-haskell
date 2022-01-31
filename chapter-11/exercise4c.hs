@@ -92,7 +92,7 @@ goto :: Pos -> IO ()
 goto (x, y) = putStr ("\ESC[" ++ show y ++ ";" ++ show x ++ "H")
 
 prompt :: Player -> String
-prompt p = "Player " ++ show p ++ ", enter your move"
+prompt p = "Player " ++ show p ++ ", enter your move: "
 
 data Tree a = Node a [Tree a]
               deriving Show
@@ -128,18 +128,17 @@ minimax (Node g ts)
 bestmove :: Grid -> Player -> Tree Grid -> Grid
 bestmove g p gt = head [g' | Node (g',p') _ <- ts, p' == best]
                where
-                   tree = prune depth gt
-                   Node (_,best) ts = minimax tree
+                   Node (_,best) ts = minimax gt
 
 main :: IO ()
 main = do hSetBuffering stdout NoBuffering
-          play empty O
+          play empty O $ gametree empty O
 
-play :: Grid -> Player -> IO ()
-play g p = do cls
-              goto (1,1)
-              putGrid g
-              play' g p $ gametree g p
+play :: Grid -> Player -> Tree Grid -> IO ()
+play g p gt = do cls              
+                 goto (1,1)
+                 putGrid g                 
+                 play' g p gt
 
 play' :: Grid -> Player -> Tree Grid -> IO ()
 play' g p gt | wins O g = putStrLn "Player O wins!\n"
@@ -149,10 +148,10 @@ play' g p gt | wins O g = putStrLn "Player O wins!\n"
                            case move g i p of 
                                  [] -> do putStrLn "ERROR: Invalid move"
                                           play' g p gt
-                                 [g'] -> play g' (next p)
+                                 [g'] -> play g' (next p) $ findGrid g' gt
              | p == X = do putStr "Player X is thinking... "
-                           (play $! (bestmove g p gt)) (next p)
-
+                           let move = bestmove g p gt
+                           (play $! move) (next p) $ findGrid move gt
 
 
 -- tests for part c
@@ -162,12 +161,12 @@ testGrid = [[X,B,O],
             [B,B,O]]
 
 gridToFind :: Grid
-gridToFind = [[X,X,O],
+gridToFind = [[X,O,O],
               [X,B,B],
               [B,B,O]]
 
 gamet :: Tree Grid
-gamet = gametree testGrid X
+gamet = gametree testGrid O
 
 findGrid :: Eq a => a -> Tree a -> Tree a
 findGrid toFind xs = head [a | a <- getY xs, getX a == toFind]
@@ -178,6 +177,6 @@ getX (Node x y) = x
 getY :: Tree a -> [Tree a]
 getY (Node x y) = y
 
-found = findGrid gridToFind gamet
+found1 = findGrid gridToFind gamet
 
 
