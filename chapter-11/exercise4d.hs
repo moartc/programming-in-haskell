@@ -82,27 +82,6 @@ getNat prompt = do putStr prompt
                    else
                        do putStrLn "ERROR: Invalid number"
                           getNat prompt
-
-tictactoe :: IO ()
-tictactoe = run empty O
-
-run :: Grid -> Player -> IO ()
-run g p = do cls
-             goto (1,1)
-             putGrid g
-             run' g p
-
-run' :: Grid -> Player -> IO ()
-run' g p | wins O g = putStrLn "Player O wins!\n"
-         | wins X g = putStrLn "Player X wins!\n"
-         | full g   = putStrLn "It's a draw!\n"
-         | otherwise =
-             do i <- getNat (prompt p)
-                case move g i p of
-                    [] -> do putStrLn "ERROR: Invalid move"
-                             run' g p
-                    [g'] -> run g' (next p)
-
 cls :: IO ()
 cls = putStr "\ESC[2J"
 
@@ -112,7 +91,7 @@ goto :: Pos -> IO ()
 goto (x, y) = putStr ("\ESC[" ++ show y ++ ";" ++ show x ++ "H")
 
 prompt :: Player -> String
-prompt p = "Player " ++ show p ++ ", enter your move"
+prompt p = "Player " ++ show p ++ ", enter your move: "
 
 data Tree a = Node a [Tree a]
               deriving Show
@@ -133,6 +112,7 @@ prune n (Node x ts) = Node x [prune (n-1) t | t <- ts]
 depth :: Int
 depth = 9
 
+{-}
 minimax :: Tree Grid -> Tree (Grid,Player)
 minimax (Node g [])
     | wins O g  = Node (g,O) []
@@ -144,12 +124,12 @@ minimax (Node g ts)
                     where
                         ts' = map minimax ts
                         ps  = [p | Node(_,p) _ <- ts']
-
+-}
 bestmove :: Grid -> Player -> Grid
-bestmove g p = head [g' | Node (g',p') _ <- ts, p' == best]
+bestmove g p = head [g' | Node (g',p',_,_) _ <- ts, p' == best]
                where
                    tree = prune depth (gametree g p)
-                   Node (_,best) ts = minimax tree
+                   Node (_,best, _, _) ts = alphaBetaMinimax' tree
 
 main :: IO ()
 main = do hSetBuffering stdout NoBuffering
@@ -173,3 +153,25 @@ play' g p | wins O g = putStrLn "Player O wins!\n"
           | p == X = do putStr "Player X is thinking... "
                         (play $! (bestmove g p)) (next p)
 
+
+-- Int and int is alpha and beta
+
+alphaBetaMinimax' :: Tree Grid -> Tree (Grid,Player, Int, Int)
+alphaBetaMinimax' (Node g [])
+    | wins O g  = Node (g,O, -99999, 99999) []
+    | wins X g  = Node (g,X, -99999, 99999) []
+    | otherwise = Node (g,B, -99999, 99999) []
+alphaBetaMinimax' (Node g ts)
+    | turn g == O = Node (g, minim, alpha, beta) minTs
+    | turn g == X = Node (g, maxim, alpha, beta) maxTs
+                    where
+                        minim = minimum minPs
+                        maxim = maximum maxPs
+                        alpha = max alpha $ minimum minPs2
+                        beta = min beta $ maximum maxPs2
+                        minTs = map alphaBetaMinimax' ts                        
+                        minPs  = [p | Node(_,p,_,_) _ <- minTs]
+                        minPs2 = [p | Node(_,_,p,_) _ <- minTs]
+                        maxTs = map alphaBetaMinimax' ts                        
+                        maxPs  = [p | Node(_,p,_,_) _ <- maxTs]
+                        maxPs2  = [p | Node(_,_,_,p) _ <- maxTs]
