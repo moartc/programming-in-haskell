@@ -170,5 +170,5 @@ Solution for 4c in file exercise 4c,hs. It seems that all issues have been fixed
 Previously 'gametree' was actually generated multiple times. Now it's fixed.
 Solution doesn't include the solutions of exercises 4a and 4b.
 
-...
+Solution for 4d in file exercise4d.hs. I don't expect it to be correct :)
 =========================================

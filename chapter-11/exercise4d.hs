@@ -112,23 +112,11 @@ prune n (Node x ts) = Node x [prune (n-1) t | t <- ts]
 depth :: Int
 depth = 9
 
-{-}
-minimax :: Tree Grid -> Tree (Grid,Player)
-minimax (Node g [])
-    | wins O g  = Node (g,O) []
-    | wins X g  = Node (g,X) []
-    | otherwise = Node (g,B) []
-minimax (Node g ts)
-    | turn g == O = Node (g, minimum ps) ts'
-    | turn g == X = Node (g, maximum ps) ts'
-                    where
-                        ts' = map minimax ts
-                        ps  = [p | Node(_,p) _ <- ts']
--}
+
 bestmove :: Grid -> Player -> Grid
 bestmove g p = head [g' | Node (g',p',_,_) _ <- ts, p' == best]
                where
-                   tree = prune depth (gametree g p)
+                   tree = gametree g p
                    Node (_,best, _, _) ts = alphaBetaMinimax' tree
 
 main :: IO ()
@@ -158,20 +146,21 @@ play' g p | wins O g = putStrLn "Player O wins!\n"
 
 alphaBetaMinimax' :: Tree Grid -> Tree (Grid,Player, Int, Int)
 alphaBetaMinimax' (Node g [])
-    | wins O g  = Node (g,O, -99999, 99999) []
-    | wins X g  = Node (g,X, -99999, 99999) []
-    | otherwise = Node (g,B, -99999, 99999) []
+    | wins O g  = Node (g,O, 99999, -99999) []
+    | wins X g  = Node (g,X, 99999, -99999) []
+    | otherwise = Node (g,B, 99999, -99999) []
 alphaBetaMinimax' (Node g ts)
-    | turn g == O = Node (g, minim, alpha, beta) minTs
-    | turn g == X = Node (g, maxim, alpha, beta) maxTs
+    | turn g == O = Node (g, foundMin, alpha, beta) minmax
+    | turn g == X = Node (g, foundMax, alpha, beta) minmax
                     where
-                        minim = minimum minPs
-                        maxim = maximum maxPs
-                        alpha = max alpha $ minimum minPs2
-                        beta = min beta $ maximum maxPs2
-                        minTs = map alphaBetaMinimax' ts                        
-                        minPs  = [p | Node(_,p,_,_) _ <- minTs]
-                        minPs2 = [p | Node(_,_,p,_) _ <- minTs]
-                        maxTs = map alphaBetaMinimax' ts                        
-                        maxPs  = [p | Node(_,p,_,_) _ <- maxTs]
-                        maxPs2  = [p | Node(_,_,_,p) _ <- maxTs]
+                        minmax = map alphaBetaMinimax' ts
+                        foundMin = first $ minimum valsAlpha
+                        foundMax = first $ maximum valsBeta
+                        valsAlpha = [(p,a) | Node(_,p,a,_) _ <- minmax]                        
+                        valsBeta = [(p,b) | Node(_,p,_,b) _ <- minmax]                        
+                        alpha = minimum [a | Node(_,p,a,_) _ <- minmax, p == foundMin]
+                        beta  = maximum[b | Node(_,p,_,b) _ <- minmax, p == foundMax]
+
+
+first (a,b) = a
+second (a,b) = b
