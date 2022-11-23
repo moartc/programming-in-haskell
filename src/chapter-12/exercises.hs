@@ -1,3 +1,12 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE InstanceSigs #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-missing-methods #-}
+
 -- Exercise 1
 data Tree a = Leaf | Node (Tree a) a (Tree a) deriving (Show)
 
@@ -9,7 +18,7 @@ instance Functor Tree where
 -- Exercise 2
 instance Functor ((->) a) where
   --   fmap :: (x -> y) -> ((->) a x) -> ((->) a y)
-  --   fmap :: (x -> y) -> (a -> x) -> (a -> b)
+  --   fmap :: (x -> y) -> (a -> x) -> (a -> y)
   --   fmap f1 f2  = \x -> f1 (f2 x)
   --   fmap f1 f2  = f1 . f2
   fmap = (.)
@@ -58,3 +67,35 @@ z2b = Z [(+ 2), (* 3), (`div` 4)]
 
 t2 :: ZipList Int
 t2 = z2b <*> z2a -- Z [6, 12, 1]
+
+-- Exercise 5
+
+law4Left :: Applicative f => f (a -> b) -> f (c -> a) -> f c -> f b
+law4Left x y z = x <*> (y <*> z)
+
+law4Right :: Applicative f => f (a -> b) -> f (c -> a) -> f c -> f b
+law4Right x y z = (pure (.) <*> x <*> y) <*> z
+-- x :: (a -> b)
+-- y :: f (c -> a)
+-- z :: f c
+
+-- Exercise 6
+
+newtype Curr a b = C (a -> b)
+
+instance Functor (Curr r) where
+  fmap :: (a -> b) -> Curr r a -> Curr r b
+  fmap f (C g) = C (f . g)
+
+instance Applicative (Curr r) where
+  pure :: a -> Curr r a
+  pure r = C (const r)
+
+instance Monad (Curr r) where
+  return :: a -> Curr r a
+  return r = C (const r)
+
+  (>>=) :: Curr r a -> (a -> Curr r b) -> Curr r b
+  (C f) >>= g = C (\x -> extr ((g . f) x) x)
+    where
+      extr (C h1) = h1
