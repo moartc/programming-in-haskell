@@ -1,11 +1,4 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE InstanceSigs #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wno-missing-methods #-}
 
 -- Exercise 1
 data Tree a = Leaf | Node (Tree a) a (Tree a) deriving (Show)
@@ -99,3 +92,86 @@ instance Monad (Curr r) where
   (C f) >>= g = C (\x -> extr ((g . f) x) x)
     where
       extr (C h1) = h1
+
+-- Exercise 7
+
+data Expr a = Var a | Val Int | Add (Expr a) (Expr a) deriving (Show)
+
+instance Functor Expr where
+  -- (a -> b) -> f a -> f b
+  fmap :: (a -> b) -> Expr a -> Expr b
+  fmap g (Var a) = Var (g a)
+  fmap g (Val a) = Val a
+  fmap g (Add e1 e2) = Add (fmap g e1) (fmap g e2)
+
+instance Applicative Expr where
+  -- pure :: a -> f a
+  pure :: a -> Expr a
+  pure a = Var a
+
+  -- (<*>) :: f (a -> b) -> f a -> f b
+  (<*>) :: Expr (a -> b) -> Expr a -> Expr b
+  _ <*> Val b = Val b -- constant
+  Val a <*> b = Val a -- constant
+  Var f <*> b = fmap f b
+  -- (Add a b) <*> Val c = Val c -- already handled above
+  -- (Add a b) <*> Add c d = Add (a <*> c) (b <*> d)   -- -> this would evalueate t11 to = Add (Var 2) (Var 4)
+  (Add a b) <*> c = Add (a <*> c) (b <*> c)
+
+t01 = pure (+ 1) <*> Val 12                -- Val 12
+t02 = pure (+ 1) <*> Add (Val 1) (Val 2)   -- Add (Val 1) (Val 2)
+t03 = pure (+ 1) <*> Add (Var 1) (Var 2)   -- Add (Var 2) (Var 3)
+t04 = pure (\x -> "a" ++ [x]) <*> Var 'a'  -- Var "aa"
+t05 = Val 12 <*> Var 1                     -- Val 12
+t06 = pure(+1) <*> Var 3                   -- Var 4
+t07 = pure(+1) <*> Val 3                   -- Val 3
+t09 = Add (pure (+1)) (pure (+2)) <*> Var 2 -- Add (Var 3) (Var 4)
+t10 = Add (pure (+1)) (pure (+2)) <*> Add (Var 1) (Var 2) -- Add (Add (Var 2) (Var 3)) (Add (Var 3) (Var 4))
+
+-- Exercise 8
+
+type State = Int
+
+newtype ST a = S (State -> (a, State))
+
+app :: ST a -> State -> (a, State)
+app (S st) x = st x
+
+instance Functor ST where
+  fmap :: (a -> b) -> ST a -> ST b
+  fmap g st = do
+    a <- st
+    let b = g a
+    S (\s -> (b, s))
+
+instance Applicative ST where
+  pure :: a -> ST a
+  pure x = S (\s -> (x, s))
+  (<*>) :: ST (a -> b) -> ST a -> ST b
+  stf <*> stx = do
+    aTob <- stf
+    a <- stx
+    let b = aTob a
+    S (\s -> (b, s))
+
+instance Monad ST where
+  (>>=) :: ST a -> (a -> ST b) -> ST b
+  st >>= f = S (\s -> let (x, s') = app st s in app (f x) s')
+
+mySt :: ST Int
+mySt = S (\x -> (x + 1, x))
+
+myState :: Int
+myState = 12
+
+t11 :: (Int, State)
+t11 = app mySt myState -- (13, 12)
+
+t12 :: (Int, State)
+t12 = app (fmap (+ 31) mySt) myState -- (44, 12)
+
+mySt2 :: ST (Int -> Char)
+mySt2 = S (\x -> (const 'c', x))
+
+t13 :: (Char, State)
+t13 = app (mySt2 <*> mySt) myState -- ('c', 12)
