@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 import Data.Char ( digitToInt, isDigit )
 import System.IO ( stdin, hSetEcho )
 
