@@ -9,28 +9,35 @@ instance Functor Tree where
   fmap g (Node a x b) = Node (fmap g a) (g x) (fmap g b)
 
 -- Exercise 2
-instance Functor ((->) a) where
-  --   fmap :: (x -> y) -> ((->) a x) -> ((->) a y)
-  --   fmap :: (x -> y) -> (a -> x) -> (a -> y)
-  --   fmap f1 f2  = \x -> f1 (f2 x)
-  --   fmap f1 f2  = f1 . f2
-  fmap = (.)
+-- instance Functor ((->) a) where
+--   --   fmap :: (x -> y) -> ((->) a x) -> ((->) a y)
+--   --   fmap :: (x -> y) -> (a -> x) -> (a -> y)
+--   --   fmap f1 f2  = \x -> f1 (f2 x)
+--   --   fmap f1 f2  = f1 . f2
+--   fmap = (.)
+
+-- instance Functor [] where
+--   --   fmap :: (x -> y) -> ((->) a x) -> ((->) a y)
+--   --   fmap :: (x -> y) -> (a -> x) -> (a -> y)
+--   --   fmap f1 f2  = \x -> f1 (f2 x)
+--   --   fmap f1 f2  = f1 . f2
+--   fmap = (.)
 
 -- Exercise 3
-instance Applicative ((->) r) where
-  pure :: a -> f a
-  --   pure :: a -> (r -> a)
-  --   pure a = \_ -> a
-  --   pure a = const a
-  pure = const
+-- instance Applicative ((->) r) where
+--   pure :: a -> f a
+--   --   pure :: a -> (r -> a)
+--   --   pure a = \_ -> a
+--   --   pure a = const a
+--   pure = const
 
-  --   (<*>) :: f (a -> b) -> f a -> f b
-  --   (<*>) :: ((->) r) (a -> b) -> ((->) r) a -> ((->) r) b
-  --   (<*>) :: (->) r (a -> b) -> (->) r a -> (->) r b
-  (<*>) :: (r -> a -> b) -> (r -> a) -> (r -> b)
-  --   (<*>) f g x = f x (g x)
-  --   (<*>) f g = \x -> f x (g x)
-  f <*> g = \x -> f x (g x)
+--   --   (<*>) :: f (a -> b) -> f a -> f b
+--   --   (<*>) :: ((->) r) (a -> b) -> ((->) r) a -> ((->) r) b
+--   --   (<*>) :: (->) r (a -> b) -> (->) r a -> (->) r b
+--   (<*>) :: (r -> a -> b) -> (r -> a) -> (r -> b)
+--   --   (<*>) f g x = f x (g x)
+--   --   (<*>) f g = \x -> f x (g x)
+--   f <*> g = \x -> f x (g x)
 
 -- Exercise 4
 newtype ZipList a = Z [a] deriving (Show)
