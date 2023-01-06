@@ -1,5 +1,5 @@
 cls :: IO ()
-cls = putStr "\ESC[2j]"
+cls = putStr "\ESC[2j"
 
 type Pos = (Int, Int)
 
