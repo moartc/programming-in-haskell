@@ -1,4 +1,5 @@
 {-# LANGUAGE InstanceSigs #-}
+{-# OPTIONS_GHC -Wno-missing-methods #-}
 
 -- Exercise 1
 data Tree a = Leaf | Node (Tree a) a (Tree a) deriving (Show)
