@@ -3,6 +3,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 import Control.Applicative (Alternative (..))
+import Control.Arrow (Arrow (first))
 import Data.Bits (Bits (xor))
 import Data.Char
   ( isAlpha,
@@ -13,8 +14,9 @@ import Data.Char
     isUpper,
     toUpper,
   )
-import GHC.IO.Handle
-import System.IO
+import GHC.IO.Handle ( hSetEcho )
+import GHC.RTS.Flags (ProfFlags (retainerSelector))
+import System.IO ( stdin )
 
 {-# HLINT ignore "Use lambda-case" #-}
 {-# HLINT ignore "Eta reduce" #-}
@@ -219,6 +221,9 @@ nats = do
   symbol "]"
   return (n : ns)
 
+
+ttt = parse (digit) "qqwe"
+
 t23 = parse nats " [1, 2, 3] " -- [([1,2,3],"")]
 
 t24 = parse nats "[1,2,]" -- []
@@ -250,20 +255,6 @@ factor =
     symbol ")"
     return e
     <|> natural
-
--- eval :: String -> Int
--- eval xs = case (parse expr xs) of
---   [(n, [])] -> n
---   [(_, out)] -> error ("Unused input " ++ out)
---   [] -> error "Invalid input"
-
--- t25 = eval "2*3+4" -- 10
-
--- t26 = eval "2*(3+4)" -- 14
-
--- t27 = eval "2*3^4" -- Exception: Unused input ^4
-
--- t28 = eval "one plus two" -- Exception: Invalid input
 
 -- ========== Calculator ==========
 -- q - quit, c - clear the display, d - delete a char
@@ -362,7 +353,197 @@ press :: Char -> String -> IO ()
 press c xs = calc (xs ++ [c])
 
 run :: IO ()
-run = do  
+run = do
   cls
   showbox
   clear
+
+
+-- ============= SOLUTIONS =============
+
+-- Exercise 1 
+comment :: Parser ()
+comment = do
+  symbol "--"
+  many (sat (/= '\n'))
+  return ()
+
+--   return ()
+
+tc0 = parse comment "--comment\n" -- [((),"\n")]
+
+tc1 = parse comment "--\n" -- [((),"")]
+
+tc2 = parse comment "-comment\n" -- []
+
+tc3 = parse comment "comment\n" -- []
+
+tc4 = parse comment "--comment" -- [((),"")]
+
+-- Exercise 2 
+-- Expression: 2+3+4
+
+-- 1.
+--          expr
+--        /  |  \
+--       /   +   \
+--     expr     expr
+--      |       / | \   
+--     term    /  +  \ 
+--      |    expr   expr
+--    factor  |      |
+--      |    term   term
+--     nat    |      |
+--      |  factor  factor  
+--      2     |      |
+--           nat    nat
+--            |      |
+--            3      4
+
+-- 2.
+--            expr
+--          /  |  \
+--         /   +   \
+--       expr     expr
+--      / | \       |    
+--     /  +  \    term    
+--   expr   expr    |
+--    |      |    factor   
+--  term   term     |
+--    |      |     nat 
+-- factor  factor   | 
+--    |      |      4
+--   nat    nat
+--    |      |
+--    2      3
+
+
+-- Exercise 3
+
+-- Expression: 2+3
+
+--         expr
+--       /  |  \
+--      /   +   \ 
+--    term     expr            
+--     |         |
+--   factor     term
+--     |         |
+--    nat      factor
+--     |         |
+--     2        nat
+--               |
+--               3  
+
+-- Expression: 2*3*4
+
+--         expr
+--          |
+--         term
+--       /  |  \
+--      /   *   \ 
+--   factor     term
+--     |       / |  \  
+--    nat     /  *   \  
+--     |   factor    term       
+--     2     |        |   
+--          nat     factor 
+--           |        |
+--           3       nat
+--                    | 
+--                    4                              
+
+-- Expression: (2+3)+4
+
+--             expr
+--           /  |  \
+--          /   +   \
+--        term     expr
+--         |         |
+--       factor     term
+--      /  |   \     |
+--     (  expr  )  factor 
+--      /  |  \      |
+--     /   +   \    nat
+--   term     expr   |
+--    |        |     4
+--  factor    term
+--    |        |
+--   nat     factor
+--    |        |
+--    2       nat
+--             |
+--             3 
+
+-- 4. Explain why the ﬁnal simpliﬁcation of the grammar for arithmetic expressions
+-- has a dramatic eﬀect on the eﬃciency of the resulting parser. Hint: begin by
+-- considering how an expression comprising a single number would be parsed if
+-- this simpliﬁcation step had not been made.
+
+-- Exercise 4
+
+-- To parse 'expr' the parser first parses 'term' with 'term + expr' and then tries to parse the rest. 
+-- On failure, the result is discarded and an alternative expression - 'term' - is parsed a second time.
+-- When parsing 'term', the first part ('factor') of 'factor * term' is "calcualted" and when the expression is 
+-- dropped due to missing "*" the alternative (just 'factor') is recalculated and taken as result - the first 
+-- calculation of 'factor' is wasted and futile in this case.
+
+-- In the optimized version, in the case of 'expr', the term is always counted (because it is always "needed") 
+-- and in the absence of "+" in the expression, an empty string is taken - unlike the previous version, 
+-- recalculation of 'term' is not required.
+
+-- Example for the "previous" version and expression "2":
+-- 1. parse term + expr
+-- 2. parse the term
+-- 3. parse factor for the first part (factor * term)
+-- 4. nat -> 2
+-- 6. we do not find *
+-- 7. parse alternative - factor
+-- 8. nat -> 2
+-- 9. we do not find +
+-- 10. parse term
+-- 11. parse factor for the first part (factor * term)
+-- 12. nat -> 2
+-- 13. we do not find *
+-- 14. parse alternative - factor
+-- 15. nat -> 2
+
+-- Example for the simplified version and expression "2":
+-- 1. parse term 
+-- 2. parse factor
+-- 3. nat -> 2
+-- 4. empty for 'term' - there is no "* term"
+-- 5. empty for 'expr' - there is no "+ expr"
+
+
+-- to do
+
+-- 5. Deﬁne a suitable type Expr for arithmetic expressions and modify the parser
+-- for expressions to have type expr :: Parser Expr.
+
+-- 6. Extend the parser expr :: Parser Int to support subtraction and division,
+-- and to use integer values rather than natural numbers, based upon the fol-
+-- lowing revisions to the grammar:
+-- expr::“ term p + expr | - expr |  q
+-- term::“ factor p * term | / term |  q
+-- factor::“ ( expr ) | int
+-- int::“
+-- ¨ ¨ ¨ | -1 | 0 | 1 | ¨ ¨ ¨
+
+-- 7. Further extend the grammar and parser for arithmetic expressions to support
+-- exponentiation ^, which is assumed to associate to the right and have higher
+-- priority than multiplication and division, but lower priority than parentheses
+-- and numbers. For example, 2^3*4 means (2^3)*4. Hint: the new level of pri-
+-- ority requires a new rule in the grammar.
+
+-- 8. Consider expressions built up from natural numbers using a subtraction op-
+-- erator that is assumed to associate to the left.
+-- a. Translate this description directly into a grammar.
+-- b. Implement this grammar as a parser expr :: Parser Int.
+-- c. What is the problem with this parser?
+-- d. Show how it can be ﬁxed. Hint: rewrite the parser using the repetition
+-- primitive many and the library function foldl.
+
+-- 9. Modify the calculator program to indicate the approximate position of an
+-- error rather than just sounding a beep, by using the fact that the parser
+-- returns the unconsumed part of the input string.
