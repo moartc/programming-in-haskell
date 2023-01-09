@@ -14,9 +14,9 @@ import Data.Char
     isUpper,
     toUpper,
   )
-import GHC.IO.Handle ( hSetEcho )
+import GHC.IO.Handle (hSetEcho)
 import GHC.RTS.Flags (ProfFlags (retainerSelector))
-import System.IO ( stdin )
+import System.IO (stdin)
 
 {-# HLINT ignore "Use lambda-case" #-}
 {-# HLINT ignore "Eta reduce" #-}
@@ -221,9 +221,6 @@ nats = do
   symbol "]"
   return (n : ns)
 
-
-ttt = parse (digit) "qqwe"
-
 t23 = parse nats " [1, 2, 3] " -- [([1,2,3],"")]
 
 t24 = parse nats "[1,2,]" -- []
@@ -358,10 +355,9 @@ run = do
   showbox
   clear
 
-
 -- ============= SOLUTIONS =============
 
--- Exercise 1 
+-- Exercise 1
 comment :: Parser ()
 comment = do
   symbol "--"
@@ -380,7 +376,7 @@ tc3 = parse comment "comment\n" -- []
 
 tc4 = parse comment "--comment" -- [((),"")]
 
--- Exercise 2 
+-- Exercise 2
 -- Expression: 2+3+4
 
 -- 1.
@@ -388,13 +384,13 @@ tc4 = parse comment "--comment" -- [((),"")]
 --        /  |  \
 --       /   +   \
 --     expr     expr
---      |       / | \   
---     term    /  +  \ 
+--      |       / | \
+--     term    /  +  \
 --      |    expr   expr
 --    factor  |      |
 --      |    term   term
 --     nat    |      |
---      |  factor  factor  
+--      |  factor  factor
 --      2     |      |
 --           nat    nat
 --            |      |
@@ -405,18 +401,17 @@ tc4 = parse comment "--comment" -- [((),"")]
 --          /  |  \
 --         /   +   \
 --       expr     expr
---      / | \       |    
---     /  +  \    term    
+--      / | \       |
+--     /  +  \    term
 --   expr   expr    |
---    |      |    factor   
+--    |      |    factor
 --  term   term     |
---    |      |     nat 
--- factor  factor   | 
+--    |      |     nat
+-- factor  factor   |
 --    |      |      4
 --   nat    nat
 --    |      |
 --    2      3
-
 
 -- Exercise 3
 
@@ -424,8 +419,8 @@ tc4 = parse comment "--comment" -- [((),"")]
 
 --         expr
 --       /  |  \
---      /   +   \ 
---    term     expr            
+--      /   +   \
+--    term     expr
 --     |         |
 --   factor     term
 --     |         |
@@ -433,7 +428,7 @@ tc4 = parse comment "--comment" -- [((),"")]
 --     |         |
 --     2        nat
 --               |
---               3  
+--               3
 
 -- Expression: 2*3*4
 
@@ -441,17 +436,17 @@ tc4 = parse comment "--comment" -- [((),"")]
 --          |
 --         term
 --       /  |  \
---      /   *   \ 
+--      /   *   \
 --   factor     term
---     |       / |  \  
---    nat     /  *   \  
---     |   factor    term       
---     2     |        |   
---          nat     factor 
+--     |       / |  \
+--    nat     /  *   \
+--     |   factor    term
+--     2     |        |
+--          nat     factor
 --           |        |
 --           3       nat
---                    | 
---                    4                              
+--                    |
+--                    4
 
 -- Expression: (2+3)+4
 
@@ -462,7 +457,7 @@ tc4 = parse comment "--comment" -- [((),"")]
 --         |         |
 --       factor     term
 --      /  |   \     |
---     (  expr  )  factor 
+--     (  expr  )  factor
 --      /  |  \      |
 --     /   +   \    nat
 --   term     expr   |
@@ -473,7 +468,7 @@ tc4 = parse comment "--comment" -- [((),"")]
 --    |        |
 --    2       nat
 --             |
---             3 
+--             3
 
 -- 4. Explain why the ﬁnal simpliﬁcation of the grammar for arithmetic expressions
 -- has a dramatic eﬀect on the eﬃciency of the resulting parser. Hint: begin by
@@ -482,14 +477,14 @@ tc4 = parse comment "--comment" -- [((),"")]
 
 -- Exercise 4
 
--- To parse 'expr' the parser first parses 'term' with 'term + expr' and then tries to parse the rest. 
+-- To parse 'expr' the parser first parses 'term' with 'term + expr' and then tries to parse the rest.
 -- On failure, the result is discarded and an alternative expression - 'term' - is parsed a second time.
--- When parsing 'term', the first part ('factor') of 'factor * term' is "calcualted" and when the expression is 
--- dropped due to missing "*" the alternative (just 'factor') is recalculated and taken as result - the first 
+-- When parsing 'term', the first part ('factor') of 'factor * term' is "calcualted" and when the expression is
+-- dropped due to missing "*" the alternative (just 'factor') is recalculated and taken as result - the first
 -- calculation of 'factor' is wasted and futile in this case.
 
--- In the optimized version, in the case of 'expr', the term is always counted (because it is always "needed") 
--- and in the absence of "+" in the expression, an empty string is taken - unlike the previous version, 
+-- In the optimized version, in the case of 'expr', the term is always counted (because it is always "needed")
+-- and in the absence of "+" in the expression, an empty string is taken - unlike the previous version,
 -- recalculation of 'term' is not required.
 
 -- Example for the "previous" version and expression "2":
@@ -509,17 +504,56 @@ tc4 = parse comment "--comment" -- [((),"")]
 -- 15. nat -> 2
 
 -- Example for the simplified version and expression "2":
--- 1. parse term 
+-- 1. parse term
 -- 2. parse factor
 -- 3. nat -> 2
 -- 4. empty for 'term' - there is no "* term"
 -- 5. empty for 'expr' - there is no "+ expr"
 
-
 -- to do
 
 -- 5. Deﬁne a suitable type Expr for arithmetic expressions and modify the parser
 -- for expressions to have type expr :: Parser Expr.
+
+-- Exercise 5
+
+data Expr = Int Int | Mult Expr Expr | Div Expr Expr | Add Expr Expr | Sub Expr Expr deriving (Show)
+
+expr' :: Parser Expr
+expr' = do
+  t <- term'
+  do
+    symbol "+"
+    Add t <$> expr'
+    <|> return t
+
+term' :: Parser Expr
+term' = do
+  f <- factor'
+  do
+    symbol "*"
+    Mult f <$> term'
+    <|> return f
+
+factor' :: Parser Expr
+factor' =
+  do
+    symbol "("
+    e <- expr'
+    symbol ")"
+    return e
+    <|> do
+      Int <$> natural
+
+t51 = parse expr' "1 + 2" -- [(Add (Int 1) (Int 2),"")]
+
+t52 = parse expr' "1 * 2" -- [(Mult (Int 1) (Int 2),"")]
+
+t53 = parse expr' "1 + 1 * 3" -- [(Add (Int 1) (Mult (Int 1) (Int 3)),"")]
+
+t54 = parse expr' "1 * 2 + 3" -- [(Add (Mult (Int 1) (Int 2)) (Int 3),"")]
+
+-- to do
 
 -- 6. Extend the parser expr :: Parser Int to support subtraction and division,
 -- and to use integer values rather than natural numbers, based upon the fol-
