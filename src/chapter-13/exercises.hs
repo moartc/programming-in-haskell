@@ -553,17 +553,54 @@ t53 = parse expr' "1 + 1 * 3" -- [(Add (Int 1) (Mult (Int 1) (Int 3)),"")]
 
 t54 = parse expr' "1 * 2 + 3" -- [(Add (Mult (Int 1) (Int 2)) (Int 3),"")]
 
--- to do
+-- Exercise 6
 
--- 6. Extend the parser expr :: Parser Int to support subtraction and division,
--- and to use integer values rather than natural numbers, based upon the fol-
--- lowing revisions to the grammar:
--- expr::“ term p + expr | - expr |  q
--- term::“ factor p * term | / term |  q
--- factor::“ ( expr ) | int
--- int::“
--- ¨ ¨ ¨ | -1 | 0 | 1 | ¨ ¨ ¨
+expr'' :: Parser Int
+expr'' = do
+  t <- term''
+  do
+    symbol "+"
+    e <- expr''
+    return (t + e)
+    <|> do
+      symbol "-"
+      e <- expr''
+      return (t - e)
+    <|> return t
 
+term'' :: Parser Int
+term'' = do
+  f <- factor''
+  do
+    symbol "*"
+    t <- term''
+    return (f * t)
+    <|> do
+      symbol "/"
+      t <- term''
+      return (f `div` t)
+    <|> return f
+
+factor'' :: Parser Int
+factor'' =
+  do
+    symbol "("
+    e <- expr''
+    symbol ")"
+    return e
+    <|> integer
+
+t61 = parse expr'' "4 - 2" -- [(2,"")]
+
+t62 = parse expr'' "-12" -- [(-12,"")]
+
+t63 = parse expr'' "4 + (-2)" -- [(2,"")]
+
+t64 = parse expr'' "6 / 2" -- [(3,"")]
+
+t65 = parse expr'' "5 - (2 / 2)" -- [(4,"")]
+
+-- to do 
 -- 7. Further extend the grammar and parser for arithmetic expressions to support
 -- exponentiation ^, which is assumed to associate to the right and have higher
 -- priority than multiplication and division, but lower priority than parentheses
