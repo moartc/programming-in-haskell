@@ -570,7 +570,7 @@ expr'' = do
 
 term'' :: Parser Int
 term'' = do
-  f <- factor''
+  f <- exp''
   do
     symbol "*"
     t <- term''
@@ -600,20 +600,62 @@ t64 = parse expr'' "6 / 2" -- [(3,"")]
 
 t65 = parse expr'' "5 - (2 / 2)" -- [(4,"")]
 
--- to do 
--- 7. Further extend the grammar and parser for arithmetic expressions to support
--- exponentiation ^, which is assumed to associate to the right and have higher
--- priority than multiplication and division, but lower priority than parentheses
--- and numbers. For example, 2^3*4 means (2^3)*4. Hint: the new level of pri-
--- ority requires a new rule in the grammar.
+-- Exercise 7
+-- I also edited term`` method from Exercise 6 here
 
--- 8. Consider expressions built up from natural numbers using a subtraction op-
--- erator that is assumed to associate to the left.
--- a. Translate this description directly into a grammar.
--- b. Implement this grammar as a parser expr :: Parser Int.
--- c. What is the problem with this parser?
--- d. Show how it can be ﬁxed. Hint: rewrite the parser using the repetition
--- primitive many and the library function foldl.
+exp'' :: Parser Int
+exp'' = do
+  f <- factor''
+  do
+    symbol "^"
+    t <- factor''
+    return (f ^ t)
+    <|> return f
+
+t71 = parse expr'' "2^3*4" -- 32
+
+t72 = parse expr'' "2^3+4" -- 12
+
+t73 = parse expr'' "2^3" -- 8
+
+t74 = parse expr'' "2^(1+2)" -- 8
+
+t75 = parse expr'' "2^1+2" -- 4
+
+-- Exercise 8
+
+-- consider something like that: 1-2-3-4-5 = ((((1-2)-3)-4)-5)
+
+-- b. implementation
+sub :: Parser Int
+sub = do
+  f <- sub
+  do
+    symbol "-"
+    t <- natural
+    return (f - t)
+    <|> return f
+
+-- c
+t82 = parse sub "1-2-3-4-5"
+
+-- The problem: Exception: stack overflow
+
+-- d
+sub' :: Parser Int
+sub' = do
+  f <- natural
+  ns <-
+    many
+      ( do
+          symbol "-"
+          natural
+      )
+  return $ foldl (-) f ns
+
+t83 = parse sub' "1-2-3-4-5" -- -13
+
+-- to do
 
 -- 9. Modify the calculator program to indicate the approximate position of an
 -- error rather than just sounding a beep, by using the fact that the parser
