@@ -35,10 +35,6 @@ item =
         (x : xs) -> [(x, xs)]
     )
 
-t1 = parse item "" -- []
-
-t2 = parse item "abc" -- [('a',"bc")]
-
 -- ========== Sequencing parses ==========
 instance Functor Parser where
   fmap :: (a -> b) -> Parser a -> Parser b
@@ -48,10 +44,6 @@ instance Functor Parser where
           [] -> []
           [(v, out)] -> [(g v, out)]
       )
-
-t3 = parse (fmap toUpper item) "abc" -- [('A',"bc")]
-
-t4 = parse (fmap toUpper item) "" -- []
 
 instance Applicative Parser where
   pure :: a -> Parser a
@@ -64,17 +56,6 @@ instance Applicative Parser where
           [(g, out)] -> parse (fmap g px) out
       )
 
-t5 = parse (pure 1) "abc" -- [(1,"abc")]
-
-three :: Parser (Char, Char)
-three = pure g <*> item <*> item <*> item
-  where
-    g x y z = (x, z)
-
-t6 = parse three "abcdef" --[(('a','c'),"def")]
-
-t7 = parse three "ab" -- []
-
 instance Monad Parser where
   (>>=) :: Parser a -> (a -> Parser b) -> Parser b
   p >>= f =
@@ -83,17 +64,6 @@ instance Monad Parser where
           [] -> []
           [(v, out)] -> parse (f v) out
       )
-
-three2 :: Parser (Char, Char)
-three2 = do
-  x <- item
-  item
-  z <- item
-  return (x, z)
-
-t8 = parse three2 "abcdef" --[(('a','c'),"def")]
-
-t9 = parse three2 "ab" -- []
 
 -- ========== Making choices ==========
 instance Alternative Parser where
@@ -104,12 +74,6 @@ instance Alternative Parser where
           [] -> parse q inp
           [(v, out)] -> [(v, out)]
       )
-
-t10 = parse empty "abc" -- []
-
-t11 = parse (item <|> return 'd') "abc" -- [('a',"bc")]
-
-t12 = parse (empty <|> return 'd') "abc" -- [('d',"abc")]
 
 -- ========== Derived primitives ==========
 sat :: (Char -> Bool) -> Parser Char
@@ -135,24 +99,12 @@ alphanum = sat isAlphaNum
 char :: Char -> Parser Char
 char x = sat (== x)
 
-t13 = parse (char 'a') "abc" -- [('a',"bc")]
-
 string :: String -> Parser String
 string [] = return []
 string (x : xs) = do
   char x
   string xs
   return (x : xs)
-
-t14 = parse (string "abc") "abcdef" -- [("abc","def")]
-
-t15 = parse (string "abc") "abc1234" -- [("abc","1234")]
-
-t16 = parse (many digit) "123abc" -- [("123","abc")]
-
-t17 = parse (many digit) "abc" -- [("","abc")]
-
-t18 = parse (some digit) "abc" -- []
 
 ident :: Parser String
 ident = do
@@ -170,12 +122,6 @@ space = do
   many (sat isSpace)
   return ()
 
-t19 = parse ident "abc def" -- ("abc"," def")]
-
-t20 = parse nat "123 abc" -- [(123," abc")]
-
-t21 = parse space "   abc" -- [((),"abc")]
-
 -- ========== Parser for integer values ==========
 int :: Parser Int
 int =
@@ -185,8 +131,6 @@ int =
     return (- n)
     <|> nat
 
-t22 = parse int "-123 abc" -- [(-123," abc")]
-
 -- ========== Handling spacing ==========
 token :: Parser a -> Parser a
 token p = do
@@ -194,9 +138,6 @@ token p = do
   v <- p
   space
   return v
-
-identifier :: Parser String
-identifier = token ident
 
 natural :: Parser Int
 natural = token nat
@@ -220,10 +161,6 @@ nats = do
       )
   symbol "]"
   return (n : ns)
-
-t23 = parse nats " [1, 2, 3] " -- [([1,2,3],"")]
-
-t24 = parse nats "[1,2,]" -- []
 
 -- ========== Arithmetic expressions ==========
 expr :: Parser Int
@@ -312,15 +249,6 @@ display xs = do
 beep :: IO ()
 beep = putStr "\BEL"
 
-calc xs = do
-  display xs
-  c <- getCh
-  if c `elem` buttons
-    then process c xs
-    else do
-      beep
-      calc xs
-
 process :: Char -> String -> IO ()
 process c xs
   | c `elem` "qQ\ESC" = quit
@@ -335,13 +263,6 @@ quit = goto (1, 14)
 delete :: String -> IO ()
 delete [] = calc []
 delete xs = calc (init xs)
-
-eval :: String -> IO ()
-eval xs = case parse expr xs of
-  [(n, [])] -> calc (show n)
-  _ -> do
-    beep
-    calc xs
 
 clear :: IO ()
 clear = calc []
@@ -655,8 +576,27 @@ sub' = do
 
 t83 = parse sub' "1-2-3-4-5" -- -13
 
--- to do
 
--- 9. Modify the calculator program to indicate the approximate position of an
--- error rather than just sounding a beep, by using the fact that the parser
--- returns the unconsumed part of the input string.
+-- Exercise 9
+
+-- The following functions have been changed:
+
+calc :: [Char] -> IO ()
+calc xs = do
+  display xs
+  c <- getCh
+  if c `elem` buttons
+    then do
+      writeat (0, 15) $ replicate  50 ' ' -- remove previous error message
+      process c xs
+    else do            
+      writeat (0,15) $ "there is no button: '" ++ [c] ++ "'" -- message below calculator instead of beep
+      calc xs
+
+eval :: String -> IO ()
+eval xs = case parse expr xs of
+  [(n, [])] -> do    
+    calc (show n)
+  [(_, err)] -> do
+    writeat (0, 15) $ "Error starts here: " ++ err -- message below calculator instead of beep
+    calc xs
