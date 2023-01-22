@@ -128,7 +128,7 @@ int =
   do
     char '-'
     n <- nat
-    return (- n)
+    return (-n)
     <|> nat
 
 -- ========== Handling spacing ==========
@@ -391,11 +391,6 @@ tc4 = parse comment "--comment" -- [((),"")]
 --             |
 --             3
 
--- 4. Explain why the ﬁnal simpliﬁcation of the grammar for arithmetic expressions
--- has a dramatic eﬀect on the eﬃciency of the resulting parser. Hint: begin by
--- considering how an expression comprising a single number would be parsed if
--- this simpliﬁcation step had not been made.
-
 -- Exercise 4
 
 -- To parse 'expr' the parser first parses 'term' with 'term + expr' and then tries to parse the rest.
@@ -430,11 +425,6 @@ tc4 = parse comment "--comment" -- [((),"")]
 -- 3. nat -> 2
 -- 4. empty for 'term' - there is no "* term"
 -- 5. empty for 'expr' - there is no "+ expr"
-
--- to do
-
--- 5. Deﬁne a suitable type Expr for arithmetic expressions and modify the parser
--- for expressions to have type expr :: Parser Expr.
 
 -- Exercise 5
 
@@ -576,7 +566,6 @@ sub' = do
 
 t83 = parse sub' "1-2-3-4-5" -- -13
 
-
 -- Exercise 9
 
 -- The following functions have been changed:
@@ -587,15 +576,15 @@ calc xs = do
   c <- getCh
   if c `elem` buttons
     then do
-      writeat (0, 15) $ replicate  50 ' ' -- remove previous error message
+      writeat (0, 15) $ replicate 50 ' ' -- remove previous error message
       process c xs
-    else do            
-      writeat (0,15) $ "there is no button: '" ++ [c] ++ "'" -- message below calculator instead of beep
+    else do
+      writeat (0, 15) $ "there is no button: '" ++ [c] ++ "'" -- message below calculator instead of beep
       calc xs
 
 eval :: String -> IO ()
 eval xs = case parse expr xs of
-  [(n, [])] -> do    
+  [(n, [])] -> do
     calc (show n)
   [(_, err)] -> do
     writeat (0, 15) $ "Error starts here: " ++ err -- message below calculator instead of beep
