@@ -196,4 +196,141 @@ countNodes (Node l r)
 
 
 -- Exercise 7
-in progress
+
+Verify the functor laws for the Maybe type. 
+Hint: the proofs proceed by case analysis, and do not require the use of induction.
+
+functor laws:
+fmap id = id
+fmap (g . h) = fmap g . fmap h
+
+Maybe functor:
+instance Functor Maybe where
+fmap :: (a -> b) -> Maybe a -> Maybe b
+fmap _ Nothing = Nothing
+fmap g (Just x) = Just (g x)
+
+1. fmap id = id
+
+Case 1: Nothing
+fmap id Nothing should be equal: id Nothing
+
+fmap id Nothing
+=   { applying fmap } 
+Noting
+=   { unapplying id }
+= id Nothing
+
+Case 2: Just x
+fmap id (Just x) should be equals: id Just x
+
+fmap id (just x)
+=   { applying fmap }
+Just (id x)
+=   { applying id }
+Just (x)
+=   { unapplying id }
+id (Just x)
+
+2. fmap (g . h) = fmap g . fmap h
+
+Case 1: Nothing
+fmap (g . h) Nothing
+=   { applying fmap }
+Nothing
+=   { unapplying fmap (for h) }
+fmap h Nothing
+=   { unapplying fmap (for g) }
+fmap g (fmap h Nothing)
+=   { using  composition }
+fmap g . h Nothing
+
+Case 2: Just x
+fmap (g . h) Just x
+=   { applying fmap }
+Just ((g . h) x)
+=   { applying composition }
+Just (g (h x))
+=   { unapplying outer map }
+fmap g Just (h x)
+=   { unapplying inner map }
+fmap g (fmap h (Just x))
+=   { unapplying composition }
+(fmap g) . (fmap h) (Just x)
+
+
+-- Exercise 8
+
+Verify the functor laws for the Tree type, by induction on trees.
+
+data Tree a = Leaf a | Node (Tree a) (Tree a)
+instance Functor Tree where
+-- fmap :: (a -> b) -> Tree a -> Tree b
+fmap g (Leaf x) = Leaf (g x)
+fmap g (Node l r) = Node (fmap g l) (fmap g r)
+
+1. fmap id = id
+
+Case 1: Leaf x
+fmap id (Leaf x) should be equal: id (Leaf x)
+
+fmap id (Leaf x)
+=   { applying fmap }
+Leaf (id x)
+=   { applying id }
+Leaf x
+=   { unapplying id }
+id (Leaf x)
+
+
+Case 2: Node l r
+fmap id (Node l r) should be equals: id (Node l r)
+
+fmap id (Node l r)
+=   { applying fmap }
+Node (fmap id l) (fmap id r)
+=   { applying id x2 }
+Node (l r)
+=   { unapplying id }
+id (Node l r)
+
+
+2. fmap (g . h) = fmap g . fmap h
+Case 1: Leaf x
+fmap (g . h) (Leaf x) should be equal: fmap g . fmap h (Leaf x)
+
+fmap (g . h) (Leaf x)
+=   { applying fmap }
+Leaf ((g . h) x)
+=   { applying composition }
+Leaf (g (h x))
+=   { unapplying outer map }
+fmap g (Leaf (h x))
+=   { unapplying inner map }
+fmap g (fmap h (Leaf x))
+=   { unapplying composition }
+fmap g . fmap h (Leaf x)
+
+Case 2: Node l r
+fmap (g . h) (Node l r) should be equal: fmap g . fmap h (Node l r)
+
+fmap (g . h) (Node l r)
+=   { applying map }
+Node (fmap (g . h) l) (fmap (g . h) r)
+=   { applying induction hypothesis for l }
+Node ((fmap g . fmap h) l) (fmap (g . h) r)
+=   { applying induction hypothesis for r }
+Node ((fmap g . fmap h) l) ((fmap g . fmap h) r)
+=   { unapplying fmap for g }
+fmap g (Node (fmap h l) (fmap h r))
+=   { unapplying fmap for h }
+fmap g (fmap h (Node l r))
+=   { unapplying composition }
+fmap g . fmap h (Node l r)
+
+
+-- Exercise 9
+-- Verify the applicative laws for the Maybe type.
+
+Applicative law for Maybe:
+-- to do 
