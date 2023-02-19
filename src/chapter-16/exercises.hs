@@ -332,5 +332,281 @@ fmap g . fmap h (Node l r)
 -- Exercise 9
 -- Verify the applicative laws for the Maybe type.
 
-Applicative law for Maybe:
+Applicative laws:
+
+I.      pure id <*> v = v                            -- Identity
+II.     pure f <*> pure x = pure (f x)               -- Homomorphism
+III.    u <*> pure y = pure ($ y) <*> u              -- Interchange
+IV.     pure (.) <*> u <*> v <*> w = u <*> (v <*> w) -- Composition
+
+
+instance Applicative Maybe where
+    pure x                   = Just x
+    (<*>) Nothing  _         = Nothing
+    (<*>) (Just f) someMaybe = fmap f someMaybe
+
+
+additionally Functors laws:
+
+functor laws:
+fmap id = id
+fmap (g . h) = fmap g . fmap h
+
+Maybe functor:
+instance Functor Maybe where
+    fmap :: (a -> b) -> Maybe a -> Maybe b
+    fmap _ Nothing = Nothing
+    fmap g (Just x) = Just (g x)
+
+
+-- 4 proves for each law with for 2 cases: Nothing and Just x
+
+I law: pure id <*> v = v
+
+Case 1: Nothing
+pure id <*> Nothing should be equal: Nothing
+
+pure id <*> Nothing
+=   { applying pure }
+Just id <*> Nothing
+=   { applying <*> (3rd definition) }
+fmap id Nothing
+=   { applying fmap (functor) }
+Nothing
+
+
+Case 2: Just x
+pure id <*> (Just x) should be equal: Just x
+
+pure id <*> Just x
+=   { applying pure }
+Just id <*> Just x
+=   { applying <*> (3rd definition) }
+fmap id (Just x)
+=   { applying fmap (functor) }
+Just (id x)
+=   { applying id }
+Just x
+------------------------------------------------------
+
+II law: pure f <*> pure x = pure (f x)
+
+Case 1: x = Nothing
+pure f <*> pure Nothing should be equal: pure (f Nothing)
+
+pure f <*> pure Nothing
+=   { applying pure }
+Just f <*> Just Nothing
+=   { applying <*> }
+fmap f (Just Nothing)
+=   { applying fmap (Functor 3rd def) }
+Just (f  Nothing)
+=   { unapplying pure }
+pure (f Nothing)
+
+
+
+Case 2: Just x
+pure f <*> pure (Just x) should be equal: pure (f Just x)
+
+pure f <*> pure (Just x)
+=   { applying  pure }
+Just f <*> Just (Just x)
+=   { applying <*> }
+fmap f (Just (Just x))
+=   { applying fmap (Functor 3rd def) }
+Just (f (Just x))
+=   { unapplying pure }
+pure (f (Just x))
+
+
+------------------------------------------------------
+III law: u <*> pure y = pure ($ y) <*> u
+                        pure (\f -> f y) <*> u (another form)
+
+Case 1: u = Nothing, right side should be equal: pure ($ y) <*> Nothing
+
+Nothing <*> pure y
+=   { applying <*> }
+Nothing
+=   { unapplying fmap }
+fmap ($ y) Nothing
+=   { unapplying <*> }
+(Just ($ y)) <*> Nothing
+=   { unapplying pure }
+pure ($ y) <*> Nothing
+
+
+
+Case 2: u = Just x, right side should be equql: pure ($ y) <*> (Just x)
+
+Just x <*> pure y
+=   { applying pure }
+(Just x) <*> (Just y)
+=   { applying <*> }
+fmap x (Just y)
+=   { applying fmap }
+Just (x y)
+=   { using $ operator }
+Just (x $ y)
+=   { using tihs lambda notation: ($y) = \x -> x $ y }
+Just (($y) x)
+=   { unapplying fmap from Functor }
+fmap ($y) (Just x)
+=   { unapplying <*> }
+(Just $y) <*> (Just x)
+=   { unapplying pure for left side }
+pure ($y) <*> (Just x)
+
+
+------------------------------------------------------
+IV law: pure (.) <*> u <*> v <*> w = u <*> (v <*> w)
+
+-- additionally dot operator (.)
+(.) :: (b -> c) -> (a -> b) -> a -> c
+(.) f g = \x -> f (g x)
+
+Case 1: u = Nothing, right side should be equal: Nothing <*> (v <*> w)
+
+pure (.) <*> Nothing <*> v <*> w
+=   { applying pure }
+(Just (.)) <*> Nothing <*> v <*> w
+=   { applying <*> }
+(fmap (.) Nothing) <*> v <*> w
+=   { applying fmap }
+Nothing <*> v <*> w
+=   { applying <*> }
+Nothing <*> w
+=   { applying <*> }
+Nothing
+=   { unapplying <*> for the entire right side }
+Nothing <*> (v <*> w)
+
+
+-- Since any occurrence of Nothing makes the whole expression Nothing, case 2 contains only "Just"
+
+
+Case 2: only Just, right side should be equal: Just u <*> ( Just v <*> Just w)
+
+pure (.) <*> Just u <*> Just v <*> Just w 
+=   { applying pure }
+(Just (.)) <*> Just u <*> Just v <*> Just w 
+=   { applying <*> }
+fmap (.) Just u <*> Just v <*> Just w
+=   { applying fmap for Functor }
+Just ((.) u) <*> Just v <*> Just w
+=   { applying <*> }
+fmap ((.) u) v <*> Just w
+=   { applying fmap }
+Just ((((.) u) v) w)
+=   { applying (.) operator - 'w' is 'x' from the formula}
+Just u (v w)
+=   { unapplying fmap }
+fmap u (Just (v w))
+=   { unapplying <*> }
+Just u <*> (Just (v w))
+=   { unapplying fmap }
+Just u <*> (fmap v (Just w))
+=   { unapplying <*> }
+Just u <*> (Just v <*> Just w)
+
+
+
+-- Exercise 10
+
+Verify the monad laws for the list type. 
+
+
+Applicative laws:
+
+I.      pure id <*> v = v                            -- Identity
+II.     pure f <*> pure x = pure (f x)               -- Homomorphism
+III.    u <*> pure y = pure ($ y) <*> u              -- Interchange
+IV.     pure (.) <*> u <*> v <*> w = u <*> (v <*> w) -- Composition
+
+instance Applicative [] where
+    pure x    = [x]
+    fs <*> xs = [f x | f <- fs, x <- xs]
+
+I.      pure id <*> v = v                            -- Identity
+
+pure id <*> v
+=   { applying pure }
+[id] <*> v
+=   { applying <*> - "pure id" corresponds "fs" and "v" to "xs" }
+[f x | f <- [id], x <- xs]
+=   { just a simpler form }
+[id x, x <- xs]
+=   { applying id }
+[x, x <- xs]
+=
+[x] = v
+
+
+II.     pure f <*> pure x = pure (f x)               -- Homomorphism
+
+pure f <*> pure x
+=   { applying pure x2 - "f" becomes "fs" and "x" becomes "xs" }
+[fs] <*> [xs]
+=   { applying <*> }
+[f x | f <- fs, x <- xs]
+=   { since the list "fs" and "xs" have only 1 element, respectively 'f' and 'x' }
+[f x]
+=   { unapplying pure }
+pure (f x)
+
+
+III.    u <*> pure y = pure ($ y) <*> u              -- Interchange
+
+u <*> pure y
+=   { applying pure }
+u <*> [y]
+=   { applying <*> }
+[u y | u <- us, y <- ys]
+=   { since ys contains only one element }
+[u y | u <- us]
+=   { using ($) operator }
+[u $ y | u <- us]
+=   { using $ as an infix operator }
+[($y) u | u <- us ]
+=   { unapplying <$> }
+[($y)] <*> u
+=   { unapplying pure }
+pure ($y) <*> u
+
+
+IV.     pure (.) <*> u <*> v <*> w = u <*> (v <*> w) -- Composition
+
+-- additional definition: (.) f g = \x -> f (g x)
+
+left side:
+pure (.) <*> u <*> v <*> w
+=   { applying pure }
+[(.)] <*> u <*> v <*> w
+=   { applying <*> - "u" becomes "us" }
+[(.) u | u <- us ] <*> v <*> w
+=   { applying <*> - "v" becomes "vs" }
+[q1 v | q1 <-[(.) u | u <- us ], v <- vs] <*> w
+=   { applying <*> - "w" becomes "ws" }
+[q2 w | q2 <- [q1 v | q1 <-[(.) u | u <- us ], v <- vs], w <- ws]
+=   { resolving q2 }
+[(.) u v w, ... rest ]
+= { applying (.) }
+[ u (v w), ... rest ]
+
+right side:
+
+u <*> (v <*> w)
+=   { applying <*> for "v" and "w"}
+u <*> [v w | v <- [vs], w <- [ws]]
+=   { applying <*> }
+[u q | u <- us, q <- [v w | v <- [vs], w <- [ws]]]
+=   { resolving q }
+[ u (v w) | u <- us, q <- [v w | v <- [vs], w <- [ws]]]
+
+
+left side == right side
+
+
+-- Exercise 11
 -- to do 
