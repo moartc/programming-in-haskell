@@ -609,4 +609,81 @@ left side == right side
 
 
 -- Exercise 11
--- to do 
+
+-- Based on reverse' example from Book
+
+-- some data, types and function definition for this Exercise: 
+data Expr = Val Int | Add Expr Expr deriving (Show)
+type Stack = [Int]
+type Code = [Op]
+data Op = PUSH Int | ADD deriving (Show)
+
+comp :: Expr -> Code
+comp (Val n) = [PUSH n]
+comp (Add x y) = comp x ++ comp y ++ [ADD]
+
+comp' :: Expr -> [Op] -> [Op]
+comp' e c = comp e ++ c
+
+Base case:
+1. for e = Val x and c = [] 
+comp' (Val x) []
+=   { specifiaction of comp' }
+comp (Val x) ++ []
+=   { applying comp }
+[PUSH x] ++ []
+=   { applying ++ }
+[PUSH x]
+-- I think the above "case" is useless here
+
+2. for e = Val x and c != [] -> cs
+comp' (Val x) cs
+=   { specifiaction of comp }
+comp (Val x) ++ cs
+=   { applying comp }
+[PUSH x] ++ cs
+=   { applying ++ }
+PUSH x : cs
+
+Inductive case:
+1. for e = (Add x y) and c = [] 
+comp' (Add x y) []
+=   { specifiaction of comp' }
+(comp x ++ comp y ++ [ADD]) ++ []
+=   { associativity of ++ }
+comp x ++ comp y ++ ([ADD] ++ [])
+=   { associativity of ++ }
+comp x ++ (comp y ++ ([ADD] ++ []))
+=   { applying ++ }
+comp x ++ (comp y ++ [ADD])
+=   { induction hypothesis for comp y ++ [ADD] }
+comp x ++ (comp' y [ADD])
+=   { induction hypothesis }
+comp' x (comp' y [ADD])
+-- again, I don't need it
+
+1. for e = (Add x y) and c = cs
+comp' (Add x y) cs
+=   { specifiaction of comp' }
+(comp x ++ comp y ++ [ADD]) ++ cs
+=   { associativity of ++ }
+comp x ++ comp y ++ ([ADD] ++ cs)
+=   { associativity of ++ }
+comp x ++ (comp y ++ ([ADD] ++ cs))
+=   { applying ++ }
+comp x ++ (comp y ++ (ADD : cs))
+=   { induction hypothesis for comp y ++ (ADD : cs) }
+comp x ++ (comp' y (ADD : cs))
+=   { induction hypothesis }
+comp' x (comp' y (ADD : cs))
+
+result: comp' x (comp' y (ADD : c))
+
+Recursive definition of comp':
+
+comp' :: Expr -> [Op] -> [Op]
+comp' (Val x) c = PUSH x : c
+comp' (Add x y) c = comp' x (comp' y (ADD : c))
+
+
+
