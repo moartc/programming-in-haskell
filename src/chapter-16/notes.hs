@@ -61,4 +61,3 @@ comp'' (Add x y) c = comp'' x (comp'' y (ADD : c))
 
 t4 = comp'' e [PUSH 1]  -- [PUSH 2,PUSH 3,ADD,PUSH 4,ADD,PUSH 1]
 
-isCorrect = t3 == t4
